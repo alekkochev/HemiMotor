@@ -212,7 +212,18 @@ function mapProduct(sp, category, subcategories) {
   const price = variant ? Number(variant.price) || 0 : 0
   const compareAt = variant?.compare_at_price ? Number(variant.compare_at_price) : null
   const available = variant ? Boolean(variant.available) : true
-  const images = (sp.images || []).map((i) => i.src).filter(Boolean)
+
+  // Дедупликација: hamachi чува иста слика во повеќе димензии (на пр. „-300x300“, „-760x520“)
+  const seen = new Set()
+  const images = (sp.images || [])
+    .map((i) => i.src)
+    .filter((src) => {
+      if (!src) return false
+      const norm = src.replace(/-\d+x\d+(?=\.[a-z0-9]+(\?|$))/i, '')
+      if (seen.has(norm)) return false
+      seen.add(norm)
+      return true
+    })
   const specs = parseSpecs(sp.body_html)
   const { cc, display } = category === 'equipment' ? { cc: null, display: null } : extractCc(sp, subcategories)
 

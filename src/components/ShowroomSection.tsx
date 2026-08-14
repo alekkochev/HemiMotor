@@ -48,6 +48,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   
   // Modal State for Motorcycle Details & Loan Calculator
   const [selectedMotoForDetails, setSelectedMotoForDetails] = useState<Motorcycle | null>(null);
+  const [detailImgIdx, setDetailImgIdx] = useState<number>(0);
   const [loanMonths, setLoanMonths] = useState<number>(24);
   const [downPaymentMkd, setDownPaymentMkd] = useState<number>(0);
 
@@ -175,6 +176,11 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
 
     return result;
   }, [selectedCategory, selectedSubCategory, selectedCcRange, selectedBrand, searchQuery, sortBy, motorcycles]);
+
+  // Reset gallery index кога се отвора нов модал
+  useEffect(() => {
+    if (selectedMotoForDetails) setDetailImgIdx(0);
+  }, [selectedMotoForDetails]);
 
   // Calculate Loan Installment for detail modal
   const calculatedLoanMonthly = useMemo(() => {
@@ -629,15 +635,32 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
             {/* Modal Visual and Specs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6">
               
-              {/* Left Column: Image & Highlights */}
+              {/* Left Column: Image Gallery & Highlights */}
               <div className="md:col-span-6 space-y-4">
                 <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-slate-950 border border-white/10">
                   <img
-                    src={selectedMotoForDetails.image}
+                    src={selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image}
                     alt={selectedMotoForDetails.name}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
+
+                {selectedMotoForDetails.gallery && selectedMotoForDetails.gallery.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {selectedMotoForDetails.gallery.map((src, i) => (
+                      <button
+                        key={src + i}
+                        onClick={() => setDetailImgIdx(i)}
+                        className={`shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                          i === detailImgIdx ? 'border-[#E22E1A]' : 'border-white/10 hover:border-white/40'
+                        }`}
+                      >
+                        <img src={src} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="bg-[#181A20] p-4 rounded-2xl border border-white/10">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2">
