@@ -224,6 +224,10 @@ function mapProduct(sp, category, subcategories) {
       seen.add(norm)
       return true
     })
+  // Санитизација на описот: тргаме inline style атрибути (темни бои како color:#000) за контраст на темната тема
+  const sanitizedHtml = (sp.body_html || '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/\sstyle="[^"]*"/gi, '')
   const specs = parseSpecs(sp.body_html)
   const { cc, display } = category === 'equipment' ? { cc: null, display: null } : extractCc(sp, subcategories)
 
@@ -234,7 +238,7 @@ function mapProduct(sp, category, subcategories) {
     category,
     vendor: sp.vendor || null,
     product_type: sp.product_type || null,
-    description_html: sp.body_html || null,
+    description_html: sanitizedHtml || null,
     description_text: stripHtml(sp.body_html) || null,
     price,
     eur_price: price ? Math.round(price / MKD_PER_EUR) : null,

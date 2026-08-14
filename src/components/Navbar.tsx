@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Menu, X, ChevronRight, Globe, ShoppingBag } from 'lucide-react';
+import { Shield, Menu, X, ChevronRight, Globe, ShoppingBag, Wrench } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { CategoryPage } from './CategoryCards';
@@ -14,6 +14,7 @@ interface NavbarProps {
   page: CategoryPage;
   onNavigate: (page: CategoryPage) => void;
   onContact: () => void;
+  onBookService: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,7 +26,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   cartItemCount,
   page,
   onNavigate,
-  onContact
+  onContact,
+  onBookService
 }) => {
   const displayCartCount = cartItemCount ?? cartItemsCount ?? 0;
   const [isScrolled, setIsScrolled] = useState(false);
@@ -152,6 +154,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Actions: Cart, AI advisor, Language & CTA */}
             <div className="hidden lg:flex items-center space-x-3">
+              {/* Закажи Сервис — директно во навбарот */}
+              <button
+                id="btn-nav-service"
+                onClick={onBookService}
+                className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-[#181A20] hover:bg-[#22252C] border border-white/10 text-slate-200 font-bold text-xs transition-colors cursor-pointer"
+                title="Закажи сервисен термин"
+              >
+                <Wrench className="w-4 h-4 text-[#FF5B4D]" />
+                <span>Закажи Сервис</span>
+              </button>
+
               {/* Shopping Cart Drawer Trigger */}
               {onOpenCart && (
                 <button
@@ -272,6 +285,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div className="pt-3 border-t border-white/10 space-y-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBookService();
+                }}
+                className="w-full flex items-center justify-center space-x-2 py-3 rounded-lg bg-[#181A20] border border-white/10 text-slate-200 font-bold text-sm"
+              >
+                <Wrench className="w-4 h-4 text-[#FF5B4D]" />
+                <span>Закажи Сервис</span>
+              </button>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

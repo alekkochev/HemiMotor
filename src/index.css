@@ -158,6 +158,13 @@
 .description-html strong {
   color: #f1f5f9;
 }
+.description-html p,
+.description-html li,
+.description-html td,
+.description-html div,
+.description-html span {
+  color: #e2e8f0;
+}
 
 .text-gradient-silver {
   background: linear-gradient(180deg, #FFFFFF 0%, #94A3B8 100%);

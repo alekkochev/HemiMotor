@@ -253,7 +253,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Main Headline */}
             <div className="space-y-3">
               <h1 className="gsap-hero-title text-3xl sm:text-5xl xl:text-6xl font-display font-black tracking-tight text-white leading-[1.1]">
-                <span className="text-[#FF4433]">{t.hero.titleStart}</span> <br />
+                <span className="text-white">{t.hero.titleStart}</span> <br />
                 <span className="text-[#FF4433] underline decoration-red-500/40 decoration-wavy">
                   {t.hero.titleHighlight.split(/(cc)/i).map((part, i) =>
                     /^cc$/i.test(part) ? (

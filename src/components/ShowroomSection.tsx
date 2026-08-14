@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Search, SlidersHorizontal, ArrowUpDown, Shield, Check, 
   Sparkles, Fuel, Zap, Gauge, Flame, Wrench, X, Eye, 
-  Calculator, Phone, ShoppingCart, MapPin, ChevronRight, Filter
+  Calculator, Phone, ShoppingCart, MapPin, ChevronRight, Filter,
+  ChevronLeft, ZoomIn
 } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -49,6 +50,8 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   // Modal State for Motorcycle Details & Loan Calculator
   const [selectedMotoForDetails, setSelectedMotoForDetails] = useState<Motorcycle | null>(null);
   const [detailImgIdx, setDetailImgIdx] = useState<number>(0);
+  const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
+  const [lightboxZoom, setLightboxZoom] = useState<boolean>(false);
   const [loanMonths, setLoanMonths] = useState<number>(24);
   const [downPaymentMkd, setDownPaymentMkd] = useState<number>(0);
 
@@ -181,6 +184,26 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   useEffect(() => {
     if (selectedMotoForDetails) setDetailImgIdx(0);
   }, [selectedMotoForDetails]);
+
+  // Галерија: листа на слики за модалот и lightbox-от
+  const galleryImages = selectedMotoForDetails
+    ? selectedMotoForDetails.gallery && selectedMotoForDetails.gallery.length > 0
+      ? selectedMotoForDetails.gallery
+      : [selectedMotoForDetails.image]
+    : [];
+  const goPrevImage = () =>
+    setDetailImgIdx((i) => (i - 1 + galleryImages.length) % galleryImages.length);
+  const goNextImage = () =>
+    setDetailImgIdx((i) => (i + 1) % galleryImages.length);
+  const openLightbox = () => {
+    setLightboxZoom(false);
+    setLightboxOpen(true);
+  };
+  const closeDetails = () => {
+    setSelectedMotoForDetails(null);
+    setLightboxOpen(false);
+    setLightboxZoom(false);
+  };
 
   // Calculate Loan Installment for detail modal
   const calculatedLoanMonthly = useMemo(() => {
@@ -458,8 +481,11 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                 key={moto.id}
                 className="gsap-moto-card bg-[#121316] rounded-2xl border border-white/10 overflow-hidden hover:border-red-500/40 transition-all duration-300 flex flex-col group"
               >
-                {/* Card Image Header */}
-                <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden">
+                {/* Card Image Header — клик на сликата го отвора модалот со спецификации */}
+                <div
+                  className="relative aspect-[16/10] bg-slate-950 overflow-hidden cursor-pointer"
+                  onClick={() => setSelectedMotoForDetails(moto)}
+                >
                   <img
                     src={moto.image}
                     alt={moto.name}
@@ -485,10 +511,10 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                     </div>
                   )}
 
-                  {/* Quick View Button */}
+                  {/* Quick View Button — секогаш видливо */}
                   <button
                     onClick={() => setSelectedMotoForDetails(moto)}
-                    className="absolute bottom-3 right-3 p-2 rounded-lg bg-[#181A20]/90 hover:bg-[#22252C] border border-white/15 text-white transition-all opacity-0 group-hover:opacity-100 flex items-center space-x-1 text-xs font-bold cursor-pointer"
+                    className="absolute bottom-3 right-3 p-2 rounded-lg bg-[#181A20]/90 hover:bg-[#22252C] border border-white/15 text-white transition-all flex items-center space-x-1 text-xs font-bold cursor-pointer"
                   >
                     <Eye className="w-4 h-4 text-[#FF5B4D]" />
                     <span>Брз Преглед</span>
@@ -606,7 +632,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
             
             {/* Close Button */}
             <button
-              onClick={() => setSelectedMotoForDetails(null)}
+              onClick={closeDetails}
               className="absolute top-5 right-5 p-2 rounded-full bg-[#181A20] hover:bg-[#22252C] border border-white/10 text-slate-300 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -637,13 +663,44 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
               
               {/* Left Column: Image Gallery & Highlights */}
               <div className="md:col-span-6 space-y-4">
-                <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-slate-950 border border-white/10">
+                <div
+                  className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-950 border border-white/10 cursor-zoom-in"
+                  onClick={openLightbox}
+                  title="Кликни за зумирање"
+                >
                   <img
                     src={selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image}
                     alt={selectedMotoForDetails.name}
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
+
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goPrevImage(); }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-white/15 text-white transition-colors cursor-pointer"
+                        aria-label="Претходна слика"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goNextImage(); }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-white/15 text-white transition-colors cursor-pointer"
+                        aria-label="Следна слика"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-[11px] font-bold">
+                        {detailImgIdx + 1} / {galleryImages.length}
+                      </span>
+                    </>
+                  )}
+
+                  <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-[11px] font-bold flex items-center space-x-1 pointer-events-none">
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span>Зум</span>
+                  </span>
                 </div>
 
                 {selectedMotoForDetails.gallery && selectedMotoForDetails.gallery.length > 1 && (
@@ -795,7 +852,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   <button
                     onClick={() => {
                       const m = selectedMotoForDetails;
-                      setSelectedMotoForDetails(null);
+                      closeDetails();
                       onOpenFinancing(m);
                     }}
                     className="flex-1 py-3.5 px-4 rounded-xl bg-[#E22E1A] hover:bg-[#C82412] text-white font-black text-sm border border-red-500/40 transition-all flex items-center justify-center space-x-2 cursor-pointer"
@@ -807,7 +864,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   <button
                     onClick={() => {
                       const m = selectedMotoForDetails;
-                      setSelectedMotoForDetails(null);
+                      closeDetails();
                       onBookTestRide(m);
                     }}
                     className="py-3.5 px-4 rounded-xl bg-[#181A20] hover:bg-[#22252C] border border-white/10 text-slate-200 font-bold text-xs transition-colors cursor-pointer"
@@ -820,6 +877,67 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
 
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Lightbox / Зум на сликата */}
+      {lightboxOpen && selectedMotoForDetails && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex flex-col"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <div className="flex items-center justify-between p-4">
+            <span className="text-white text-sm font-bold px-3 py-1.5 rounded-lg bg-white/10">
+              {selectedMotoForDetails.name}
+              {galleryImages.length > 1 && ` — ${detailImgIdx + 1} / ${galleryImages.length}`}
+            </span>
+            <div className="flex items-center space-x-2">
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); goPrevImage(); }}
+                    className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                    aria-label="Претходна слика"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); goNextImage(); }}
+                    className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                    aria-label="Следна слика"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => { setLightboxZoom(false); setLightboxOpen(false); }}
+                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                aria-label="Затвори"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            className={`flex-1 overflow-auto flex items-center justify-center p-6 ${
+              lightboxZoom ? 'cursor-zoom-out' : 'cursor-zoom-in'
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxZoom((z) => !z);
+            }}
+          >
+            <img
+              src={selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image}
+              alt={selectedMotoForDetails.name}
+              className={`max-w-full max-h-full object-contain transition-transform duration-300 ${
+                lightboxZoom ? 'scale-[1.6]' : 'scale-100'
+              }`}
+              referrerPolicy="no-referrer"
+            />
           </div>
         </div>
       )}

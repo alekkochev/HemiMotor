@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, Wrench, ShieldCheck, CheckCircle2, User, Phone, Mail, MapPin, Truck } from 'lucide-react';
 import { Language, ServicePackage, Motorcycle } from '../types';
 import { translations } from '../data/translations';
@@ -11,6 +11,7 @@ interface BookingModalProps {
   preselectedService?: ServicePackage | null;
   preselectedMoto?: Motorcycle | null;
   prefilledDiagnosis?: string | null;
+  bookingType?: 'service' | 'test-ride' | 'financing';
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({
@@ -19,13 +20,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   currentLang,
   preselectedService,
   preselectedMoto,
-  prefilledDiagnosis
+  prefilledDiagnosis,
+  bookingType
 }) => {
   const t = translations[currentLang];
 
-  const [bookingType, setBookingType] = useState<'service' | 'test-ride' | 'financing'>(
-    preselectedMoto ? 'test-ride' : 'service'
-  );
+  // Типот го одредува повикувачот: навбар/сервис = 'service', картичка/модал = 'test-ride' или 'financing'
+  const mode = bookingType ?? (preselectedMoto ? 'test-ride' : 'service');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -42,6 +43,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [notes, setNotes] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [referenceCode, setReferenceCode] = useState('');
+
+  // Синхронизација на претходно избраниот модел (модалот останува монтиран меѓу отворања)
+  useEffect(() => {
+    setMotoModel(
+      preselectedMoto
+        ? `${preselectedMoto.brand} ${preselectedMoto.name} (${preselectedMoto.displacement})`
+        : ''
+    );
+  }, [preselectedMoto]);
 
   if (!isOpen) return null;
 
@@ -85,48 +95,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 HEMIMOTOR СКОПЈЕ
               </span>
               <h3 className="text-2xl font-display font-black text-white">
-                {bookingType === 'service' ? 'Закажи Овластен Сервис' : bookingType === 'test-ride' ? 'Тест Возење во Салон' : 'Апликација за Кредитирање на Рати'}
+                {mode === 'service' ? 'Закажи Овластен Сервис' : mode === 'test-ride' ? 'Тест Возење во Салон' : 'Апликација за Кредитирање на Рати'}
               </h3>
               <p className="text-xs text-slate-400">
                 Нашиот тим ќе ве контактира на телефонскиот број во рок од 30 минути за потврда на терминот.
               </p>
-            </div>
-
-            {/* Switch Booking Type */}
-            <div className="flex rounded-xl bg-[#181A20] p-1 border border-white/10">
-              <button
-                type="button"
-                onClick={() => setBookingType('service')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  bookingType === 'service'
-                    ? 'bg-[#E22E1A] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                🛠️ Сервис
-              </button>
-              <button
-                type="button"
-                onClick={() => setBookingType('test-ride')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  bookingType === 'test-ride'
-                    ? 'bg-[#E22E1A] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                🏍️ Тест Возење
-              </button>
-              <button
-                type="button"
-                onClick={() => setBookingType('financing')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  bookingType === 'financing'
-                    ? 'bg-[#E22E1A] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                💳 Купи на Рати
-              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
@@ -171,12 +144,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     onChange={(e) => setSalonCity(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl bg-[#181A20] border border-white/10 text-white font-semibold outline-none focus:border-[#FF5B4D]"
                   >
-                    <option value="Скопје" className="bg-[#181A20] text-white">Скопје (Главен Салон Бул. Србија)</option>
-                    <option value="Штип" className="bg-[#181A20] text-white">Штип (Централа & Сервисен Центар)</option>
-                    <option value="Битола" className="bg-[#181A20] text-white">Битола (Салон Довлеџик)</option>
-                    <option value="Струмица" className="bg-[#181A20] text-white">Струмица (Салон Ленинова)</option>
-                    <option value="Тетово" className="bg-[#181A20] text-white">Тетово (Салон Маршал Тито)</option>
-                    <option value="Охрид" className="bg-[#181A20] text-white">Охрид (Салон Бул. Туристичка)</option>
+                    <option value="Скопје" className="bg-[#181A20] text-white">Скопје — 518 1/13 Керамидница (Салон & Сервис)</option>
                   </select>
                 </div>
 

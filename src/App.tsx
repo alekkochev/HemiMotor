@@ -29,6 +29,7 @@ export default function App() {
   // Modals state
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isB2BModalOpen, setIsB2BModalOpen] = useState(false);
+  const [bookingMode, setBookingMode] = useState<'service' | 'test-ride' | 'financing'>('service');
 
   // Pre-filled modal contexts
   const [selectedMotoForBooking, setSelectedMotoForBooking] = useState<Motorcycle | null>(null);
@@ -119,18 +120,21 @@ export default function App() {
     setSelectedMotoForBooking(null);
     setSelectedServiceForBooking(null);
     setPrefilledDiagnosis(null);
+    setBookingMode('service');
     setIsBookingOpen(true);
   };
 
   const handleTestRideMoto = (moto: Motorcycle) => {
     setSelectedMotoForBooking(moto);
     setSelectedServiceForBooking(null);
+    setBookingMode('test-ride');
     setIsBookingOpen(true);
   };
 
   const handleBookServicePackage = (pkg: ServicePackage) => {
     setSelectedServiceForBooking(pkg);
     setSelectedMotoForBooking(null);
+    setBookingMode('service');
     setIsBookingOpen(true);
   };
 
@@ -157,6 +161,7 @@ export default function App() {
         page={page}
         onNavigate={navigateTo}
         onContact={handleContactNav}
+        onBookService={handleOpenBooking}
       />
 
       {/* Main Experience Flow */}
@@ -247,6 +252,7 @@ export default function App() {
               onBookTestRide={handleTestRideMoto}
               onOpenFinancing={(moto) => {
                 setSelectedMotoForBooking(moto);
+                setBookingMode('financing');
                 setIsBookingOpen(true);
               }}
               fixedCategory={page === 'scooters' ? 'scooters' : 'motorcycles'}
@@ -281,6 +287,7 @@ export default function App() {
         preselectedMoto={selectedMotoForBooking}
         preselectedService={selectedServiceForBooking}
         prefilledDiagnosis={prefilledDiagnosis}
+        bookingType={bookingMode}
       />
 
       <FleetConfiguratorModal
