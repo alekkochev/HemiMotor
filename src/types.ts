@@ -38,7 +38,7 @@ export interface Motorcycle {
   monthlyInstallmentMkd: number;
   engine: string;
   engineType: '2-тактен' | '4-тактен' | 'V-Twin' | '3-Цилиндри' | 'Електричен';
-  cooling: 'Воздушно' | 'Водено' | 'Воздушно/Маслено';
+  cooling: string;
   power: string;
   torque: string;
   topSpeed: string;

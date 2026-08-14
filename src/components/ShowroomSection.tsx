@@ -643,14 +643,25 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2">
                     Фабрички Карактеристики:
                   </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-300">
-                    {selectedMotoForDetails.features.map((f, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 mr-2 flex-shrink-0 mt-0.5" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {selectedMotoForDetails.features.length > 0 ? (
+                    <ul className="space-y-1.5 text-xs text-slate-300">
+                      {selectedMotoForDetails.features.map((f, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <Check className="w-3.5 h-3.5 text-emerald-400 mr-2 flex-shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : selectedMotoForDetails.descriptionHtml ? (
+                    <div
+                      className="max-h-56 overflow-y-auto text-xs leading-relaxed text-slate-300 description-html"
+                      dangerouslySetInnerHTML={{ __html: selectedMotoForDetails.descriptionHtml }}
+                    />
+                  ) : (
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      {selectedMotoForDetails.description || 'Контактирајте не за повеќе информации за овој модел.'}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -723,20 +734,38 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Technical Specifications Table */}
+                {/* Technical Specifications Table — само достапните податоци */}
+                {[
+                  ['Агрегат', selectedMotoForDetails.engine],
+                  ['Ладење', selectedMotoForDetails.cooling],
+                  ['Моќност', selectedMotoForDetails.power],
+                  ['Вртежен момент', selectedMotoForDetails.torque],
+                  ['Сопирачки', selectedMotoForDetails.brakes],
+                  ['Тркала & Гуми', selectedMotoForDetails.tires],
+                ].filter(([, v]) => v && v !== '—').length > 0 && (
                 <div className="bg-[#181A20] p-4 rounded-2xl border border-white/10 space-y-2 text-xs">
                   <h4 className="font-bold text-white uppercase tracking-wider">
                     Технички Податоци:
                   </h4>
                   <div className="grid grid-cols-2 gap-y-2 gap-x-4">
-                    <div><span className="text-slate-400">Агрегат:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.engine}</span></div>
-                    <div><span className="text-slate-400">Ладење:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.cooling}</span></div>
-                    <div><span className="text-slate-400">Моќност:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.power}</span></div>
-                    <div><span className="text-slate-400">Вртежен момент:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.torque}</span></div>
-                    <div><span className="text-slate-400">Сопирачки:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.brakes}</span></div>
-                    <div><span className="text-slate-400">Тркала & Гуми:</span> <span className="font-bold text-slate-200">{selectedMotoForDetails.tires}</span></div>
+                    {[
+                      ['Агрегат', selectedMotoForDetails.engine],
+                      ['Ладење', selectedMotoForDetails.cooling],
+                      ['Моќност', selectedMotoForDetails.power],
+                      ['Вртежен момент', selectedMotoForDetails.torque],
+                      ['Сопирачки', selectedMotoForDetails.brakes],
+                      ['Тркала & Гуми', selectedMotoForDetails.tires],
+                    ]
+                      .filter(([, v]) => v && v !== '—')
+                      .map(([label, value]) => (
+                        <div key={label}>
+                          <span className="text-slate-400">{label}:</span>{' '}
+                          <span className="font-bold text-slate-200">{value}</span>
+                        </div>
+                      ))}
                   </div>
                 </div>
+                )}
 
                 {/* Action CTAs inside modal */}
                 <div className="flex flex-wrap gap-3 pt-2">
