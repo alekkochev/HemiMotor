@@ -1,0 +1,6 @@
+{
+  "name": "HEMIMOTOR | Овластен Мото Центар & Продавница Македонија",
+  "description": "Овластен увозник и дистрибутер за Zontes, SYM, Kove, QJMotor, HMC и Hemimotor моторцикли, скутери од 50cc до 800cc, четирицикли и комплетна опрема во Македонија.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,26 @@
+name: Sync Shopify → Supabase (Hemi Motor)
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # секој ден во 03:00 UTC
+  workflow_dispatch: {}    # рачно стартување
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Инсталирај
+        run: npm install --no-audit --no-fund
+
+      - name: Синхронизација на скутери (hamachi → Supabase)
+        env:
+          SHOPIFY_BASE_URL: https://hamachi.mk
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+        run: node scripts/sync-shopify.mjs
