@@ -5,6 +5,7 @@
  *   1. Скутери      (главна колекција „skuteri“ + поткатегории)
  *   2. Моторцикли   (главна колекција „motocikli“ + поткатегории — без ATV)
  *   3. Мото опрема  (кациги, јакни, обувки, ракавици, панталони, опрема)
+ *   4. Резервни делови (parts.mk — скрејпирани наслови, цени и слики од prodavnica)
  *
  * Користење: npm run sync  (или node scripts/sync-shopify.mjs)
  * Потребни env: SUPABASE_URL, SUPABASE_SERVICE_ROLE (види .env.example)
@@ -92,6 +93,12 @@ const EQUIPMENT_COLLECTIONS = [
   'pantaloni',
   'zashtitna-oprema',
 ]
+
+const PARTS_MK_BASE = 'https://parts.mk'
+const PARTS_MK_SKIP = /кацига|ракавици|јакна|панталони|обувки|чизми|визир|балаклава|очила|чанти|ранец/i
+/** ID-ја на категориите на делови на parts.mk (WP REST API) што се синхронизираат. */
+const PARTS_MK_CATEGORY_IDS = [581, 582, 583, 355, 339, 422, 316, 394, 343, 353, 467, 434, 357, 450, 337, 317, 408, 315, 490, 430]
+const PARTS_MK_MAX_TOTAL = 120
 
 async function fetchJson(url) {
   const res = await fetch(url, { headers: { 'User-Agent': 'HemiMotor-Sync/1.0' } })
@@ -229,7 +236,7 @@ function mapProduct(sp, category, subcategories) {
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
     .replace(/\sstyle="[^"]*"/gi, '')
   const specs = parseSpecs(sp.body_html)
-  const { cc, display } = category === 'equipment' ? { cc: null, display: null } : extractCc(sp, subcategories)
+  const { cc, display } = category === 'equipment' || category === 'parts' ? { cc: null, display: null } : extractCc(sp, subcategories)
 
   return {
     id: sp.id,
@@ -296,6 +303,76 @@ async function fetchEquipmentProducts() {
   return Array.from(byHandle.values())
 }
 
+async function fetchPartsProducts() {
+  const byId = new Map()
+  const out = []
+  const push = (p) => {
+    if (out.length >= PARTS_MK_MAX_TOTAL) return
+    out.push(p)
+  }
+  for (const catId of PARTS_MK_CATEGORY_IDS) {
+    const url = `${PARTS_MK_BASE}/wp-json/wp/v2/product?product_cat=${catId}&per_page=12&_embed=1&page=1`
+    let items
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) HemiMotor-Sync/1.0',
+          Accept: 'application/json',
+        },
+      })
+      if (!res.ok) {
+        console.warn(`   ⚠️ cat ${catId}: HTTP ${res.status}`)
+        continue
+      }
+      items = await res.json()
+    } catch (e) {
+      console.warn(`   ⚠️ cat ${catId}: ${e.message}`)
+      continue
+    }
+    let catItems = 0
+    for (const p of items || []) {
+      if (byId.has(p.id)) continue
+      const media = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0]
+      const sizes = (media && media.media_details && media.media_details.sizes) || {}
+      const img =
+        (sizes.woocommerce_thumbnail && sizes.woocommerce_thumbnail.source_url) ||
+        (sizes.medium && sizes.medium.source_url) ||
+        (sizes.thumbnail && sizes.thumbnail.source_url) ||
+        (media && media.source_url) ||
+        null
+      if (!img || /placehold|изработка|placeholder/i.test(img)) continue
+      const title = ((p.title && p.title.rendered) || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      if (!title || PARTS_MK_SKIP.test(title)) continue
+      byId.set(p.id, true)
+      push({
+        id: 900000 + out.length + 1,
+        handle: `parts-mk-${p.id}`,
+        title,
+        category: 'parts',
+        vendor: 'Parts.mk',
+        product_type: 'Резервен дел',
+        description_html: null,
+        description_text: title,
+        price: 0,
+        eur_price: null,
+        compare_at_price: null,
+        available: true,
+        image_url: img,
+        images: [img],
+        tags: [],
+        subcategories: [],
+        cc_number: null,
+        cc_display: null,
+        specs: {},
+        updated_at: new Date().toISOString(),
+      })
+      catItems++
+    }
+    if (catItems > 0) console.log(`   • cat ${catId}: ${catItems}`)
+  }
+  return out
+}
+
 async function main() {
   console.log('🚀 HEMI MOTOR sync — старт')
 
@@ -315,6 +392,11 @@ async function main() {
   const equipment = await fetchEquipmentProducts()
   console.log(`   • вкупно: ${equipment.length}`)
   all.push(...equipment)
+
+  console.log('🔩 Резервни делови (parts.mk)...')
+  const parts = await fetchPartsProducts()
+  console.log(`   • вкупно: ${parts.length}`)
+  all.push(...parts)
 
   const byCat = {}
   for (const p of all) byCat[p.category] = (byCat[p.category] || 0) + 1
@@ -351,13 +433,16 @@ async function main() {
   const staleIds = []
   for (;;) {
     const listRes = await fetch(
-      `${restUrl}?select=id,handle&offset=${offset}&limit=1000`,
+      `${restUrl}?select=id,handle,category&offset=${offset}&limit=1000`,
       { headers: { apikey: SERVICE_ROLE, Authorization: `Bearer ${SERVICE_ROLE}` } },
     )
     if (!listRes.ok) break
     const rows = await listRes.json()
     if (!rows.length) break
-    for (const r of rows) if (!currentHandles.has(r.handle)) staleIds.push(r.id)
+    for (const r of rows) {
+      // Деловите од parts.mk не се бришат при привремен пад на скрејперот
+      if (!currentHandles.has(r.handle) && r.category !== 'parts') staleIds.push(r.id)
+    }
     offset += rows.length
     if (rows.length < 1000) break
   }

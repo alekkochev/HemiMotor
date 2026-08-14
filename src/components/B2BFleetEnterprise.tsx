@@ -88,7 +88,7 @@ export const B2BFleetEnterprise: React.FC<B2BFleetEnterpriseProps> = ({
     <section 
       ref={sectionRef}
       id="b2b-fleet" 
-      className="py-16 lg:py-24 bg-[#0A0A0B] border-b border-white/10 relative text-slate-100"
+      className="py-16 lg:py-24 bg-transparent border-b border-white/10 relative text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         

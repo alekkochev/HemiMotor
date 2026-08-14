@@ -8,7 +8,7 @@
     --font-mono: 'JetBrains Mono', monospace;
 
     /* Theme color variables */
-    --bg-main: #0A0A0B;
+    --bg-main: #16171C;
     --bg-surface: #121316;
     --bg-surface-elevated: #18191E;
     --bg-surface-subtle: #15161B;
@@ -21,13 +21,18 @@
   }
 
   html {
-    background-color: #0A0A0B;
+    background-color: #16171C;
     color-scheme: dark;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #0A0A0B;
+    background-color: #16171C;
+    background-image:
+      radial-gradient(1100px 520px at 50% -8%, rgba(255, 68, 51, 0.16), transparent 62%),
+      radial-gradient(820px 480px at 100% 15%, rgba(255, 68, 51, 0.10), transparent 58%),
+      radial-gradient(700px 420px at 0% 45%, rgba(255, 68, 51, 0.08), transparent 60%);
+    background-attachment: fixed;
     color: #F1F5F9;
     overflow-x: hidden;
   }
@@ -68,7 +73,7 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0B;
+  background: #16171C;
 }
 ::-webkit-scrollbar-thumb {
   background: #27272A;

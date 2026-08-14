@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, Truck, ShieldCheck, CheckCircle2, Phone, ArrowRight, ChevronRight } from 'lucide-react';
 import { ShopProduct, Language } from '../types';
+import { shopifyImg } from '../lib/cdn';
 
 export interface CartItem {
   product: ShopProduct;
@@ -224,8 +225,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className="p-3 rounded-2xl bg-[#181A20] border border-white/10 flex space-x-3 items-center"
                   >
                     <img
-                      src={item.product.image}
+                      src={shopifyImg(item.product.image, 160)}
                       alt={item.product.name}
+                      loading="lazy"
                       className="w-14 h-14 object-cover rounded-xl bg-black border border-white/10 flex-shrink-0"
                     />
 

@@ -4,6 +4,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { OemPart, Language } from '../types';
 import { OEM_PARTS } from '../data/parts';
 import { translations } from '../data/translations';
+import { usePartsProducts } from '../lib/usePartsProducts';
+import { shopifyImg } from '../lib/cdn';
 import { 
   Search, 
   Truck, 
@@ -29,6 +31,7 @@ export const OemPartsSection: React.FC<OemPartsSectionProps> = ({
   onRequestPartQuote
 }) => {
   const t = translations[currentLang];
+  const { parts } = usePartsProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedPartModal, setSelectedPartModal] = useState<OemPart | null>(null);
@@ -136,7 +139,7 @@ export const OemPartsSection: React.FC<OemPartsSectionProps> = ({
     <section 
       ref={sectionRef}
       id="oem-parts" 
-      className="py-16 lg:py-24 bg-[#0A0A0B] border-b border-white/10 relative text-slate-100"
+      className="py-16 lg:py-24 bg-transparent border-b border-white/10 relative text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
@@ -168,6 +171,48 @@ export const OemPartsSection: React.FC<OemPartsSectionProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Реални фотографии на резервни делови од магацинот */}
+        {parts.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Реални Фотографии на Делови од Магацинот:
+              </div>
+              <span className="text-[11px] text-slate-400 font-semibold">
+                {parts.length}+ делови на залиха
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              {parts.slice(0, 12).map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-xl overflow-hidden bg-[#121316] border border-white/10 group"
+                >
+                  <div className="aspect-square bg-slate-950 overflow-hidden">
+                    <img
+                      src={shopifyImg(p.image, 400)}
+                      alt={p.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="p-2">
+                    <div className="text-[10px] font-bold text-slate-300 line-clamp-1">
+                      {p.title}
+                    </div>
+                    {p.price > 0 && (
+                      <div className="text-[11px] font-black text-[#FF5B4D]">
+                        {p.price.toLocaleString('mk-MK')} ден.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search & Category Filter Controls */}
         <div className="gsap-parts-controls space-y-3">

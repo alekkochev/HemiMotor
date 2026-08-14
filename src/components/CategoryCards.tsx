@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useMotorcycles } from '../lib/useMotorcycles';
 import { useShopProducts } from '../lib/useShopProducts';
+import { shopifyImg } from '../lib/cdn';
 
 export type CategoryPage = 'home' | 'scooters' | 'motorcycles' | 'equipment';
 
@@ -45,7 +46,7 @@ export const CategoryCards: React.FC<CategoryCardsProps> = ({ onSelectCategory }
   ];
 
   return (
-    <section id="categories" className="py-16 bg-[#0A0A0B] border-b border-white/10">
+    <section id="categories" className="py-16 bg-transparent border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-red-950/40 border border-red-500/30 text-[#FF5B4D] text-xs font-bold uppercase tracking-wider mb-2">
@@ -69,8 +70,9 @@ export const CategoryCards: React.FC<CategoryCardsProps> = ({ onSelectCategory }
               <div className="relative aspect-[4/3] overflow-hidden bg-[#181A20]">
                 {cat.image ? (
                   <img
-                    src={cat.image}
+                    src={shopifyImg(cat.image, 800)}
                     alt={cat.title}
+                    loading="lazy"
                     className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                   />

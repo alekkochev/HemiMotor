@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ShopProduct, Language } from '../types';
 import { translations } from '../data/translations';
 import { useShopProducts } from '../lib/useShopProducts';
+import { shopifyImg } from '../lib/cdn';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -154,7 +155,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
     <section 
       ref={sectionRef}
       id="shop" 
-      className="py-16 bg-[#0A0A0B] border-b border-white/10 text-slate-100"
+      className="py-16 bg-transparent border-b border-white/10 text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -247,8 +248,9 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
               <div>
                 <div className="relative aspect-square bg-slate-950 overflow-hidden">
                   <img
-                    src={product.image}
+                    src={shopifyImg(product.image, 600)}
                     alt={product.name}
+                    loading="lazy"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-90"
                     referrerPolicy="no-referrer"
                   />

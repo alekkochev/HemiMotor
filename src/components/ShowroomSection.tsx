@@ -10,6 +10,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Motorcycle, MotoCategory, MotoSubCategory, Language } from '../types';
 import { translations } from '../data/translations';
 import { useMotorcycles } from '../lib/useMotorcycles';
+import { shopifyImg } from '../lib/cdn';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -288,7 +289,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
     <section 
       ref={sectionRef}
       id="showroom" 
-      className="py-16 bg-[#0A0A0B] border-b border-white/10 text-slate-100"
+      className="py-16 bg-transparent border-b border-white/10 text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -487,8 +488,9 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   onClick={() => setSelectedMotoForDetails(moto)}
                 >
                   <img
-                    src={moto.image}
+                    src={shopifyImg(moto.image, 640)}
                     alt={moto.name}
+                    loading="lazy"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-90"
                     referrerPolicy="no-referrer"
                   />
@@ -669,7 +671,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                   title="Кликни за зумирање"
                 >
                   <img
-                    src={selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image}
+                    src={shopifyImg(selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image, 1100)}
                     alt={selectedMotoForDetails.name}
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
@@ -713,7 +715,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                           i === detailImgIdx ? 'border-[#E22E1A]' : 'border-white/10 hover:border-white/40'
                         }`}
                       >
-                        <img src={src} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img src={shopifyImg(src, 180)} alt="" loading="lazy" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       </button>
                     ))}
                   </div>
@@ -931,7 +933,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
             }}
           >
             <img
-              src={selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image}
+              src={shopifyImg(selectedMotoForDetails.gallery?.[detailImgIdx] || selectedMotoForDetails.image, 1800)}
               alt={selectedMotoForDetails.name}
               className={`max-w-full max-h-full object-contain transition-transform duration-300 ${
                 lightboxZoom ? 'scale-[1.6]' : 'scale-100'

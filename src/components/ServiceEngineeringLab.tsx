@@ -126,7 +126,7 @@ export const ServiceEngineeringLab: React.FC<ServiceEngineeringLabProps> = ({
     <section 
       ref={sectionRef}
       id="service-lab" 
-      className="py-16 lg:py-24 bg-[#0A0A0B] border-b border-white/10 relative text-slate-100"
+      className="py-16 lg:py-24 bg-transparent border-b border-white/10 relative text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
@@ -150,9 +150,6 @@ export const ServiceEngineeringLab: React.FC<ServiceEngineeringLabProps> = ({
           {/* Left Column: Interactive Service Selector Tabs */}
           <div className="lg:col-span-5 flex flex-col justify-between space-y-3">
             <div className="space-y-2">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Овластени Сервисни Протоколи во Салоните:
-              </div>
               {SERVICE_PACKAGES.map((pkg) => (
                 <button
                   key={pkg.id}

@@ -44,7 +44,7 @@ export const EngineeringCredentials: React.FC<EngineeringCredentialsProps> = ({
   ];
 
   return (
-    <section id="credentials" className="py-16 lg:py-24 bg-[#0A0A0B] border-b border-white/10 relative text-slate-100">
+    <section id="credentials" className="py-16 lg:py-24 bg-transparent border-b border-white/10 relative text-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Section Header */}

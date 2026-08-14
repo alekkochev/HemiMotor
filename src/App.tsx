@@ -149,7 +149,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-slate-100 selection:bg-[#E22E1A]/30 selection:text-white relative font-sans">
+    <div className="min-h-screen bg-transparent text-slate-100 selection:bg-[#E22E1A]/30 selection:text-white relative font-sans">
 
       {/* Navigation Header */}
       <Navbar

@@ -101,7 +101,7 @@ export const SalonsSection: React.FC<SalonsSectionProps> = ({
     <section 
       ref={sectionRef}
       id="salons" 
-      className="py-16 bg-[#0A0A0B] border-b border-white/10 text-slate-100"
+      className="py-16 bg-transparent border-b border-white/10 text-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -220,6 +220,7 @@ export const SalonsSection: React.FC<SalonsSectionProps> = ({
             <img
               src={currentSalon.image}
               alt={currentSalon.name}
+              loading="lazy"
               className="w-full h-full object-cover opacity-90"
               referrerPolicy="no-referrer"
             />

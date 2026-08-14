@@ -223,7 +223,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     <section 
       ref={containerRef}
       id="hero-section" 
-      className="relative bg-[#0A0A0B] border-b border-white/10 overflow-hidden pt-8 pb-16 lg:py-20 text-slate-100"
+      className="relative bg-transparent border-b border-white/10 overflow-hidden pt-8 pb-16 lg:py-20 text-slate-100"
     >
       {/* Subtle engineering background grid */}
       <div className="absolute inset-0 tech-grid-pattern-dark opacity-40 pointer-events-none"></div>
@@ -373,7 +373,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 />
                 
                 {/* Clean vignette overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-black/25 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#16171C] via-black/25 to-transparent"></div>
 
                 {/* Top Badges */}
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#121316]/90 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white flex items-center space-x-1.5">
@@ -477,9 +477,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* Official Brands Banner */}
         <div className="gsap-hero-brands-bar mt-14 pt-6 border-t border-white/10">
-          <div className="text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-            {t.trust.heading}
-          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {brandLogos.map((b, idx) => (
               <div

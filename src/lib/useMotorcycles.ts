@@ -136,8 +136,10 @@ export function useMotorcycles(): { motorcycles: Motorcycle[]; loading: boolean;
 
   const { motorcycles, usingDemo } = useMemo(() => {
     if (rows && rows.length) {
-      // Само скутери + моторцикли (опремата е во ShopSection)
-      const vehicles = rows.filter((r) => r.category !== 'equipment').map(mapRowToMotorcycle)
+      // Само скутери + моторцикли (опремата е во ShopSection, деловите во OemPartsSection)
+      const vehicles = rows
+        .filter((r) => r.category === 'scooters' || r.category === 'motorcycles')
+        .map(mapRowToMotorcycle)
       if (vehicles.length) return { motorcycles: vehicles, usingDemo: false }
     }
     // Без база или празна база → демо податоци (апликацијата се гледа и без Supabase)
