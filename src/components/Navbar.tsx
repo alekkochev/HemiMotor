@@ -1,28 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Wrench, Phone, Menu, X, ChevronRight, Globe, ShoppingBag, MapPin, Zap } from 'lucide-react';
+import { Shield, Menu, X, ChevronRight, Globe, ShoppingBag } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
+import { CategoryPage } from './CategoryCards';
 
 interface NavbarProps {
   currentLang: Language;
   onLanguageChange: (lang: Language) => void;
-  onOpenBooking: () => void;
   onOpenB2BModal: () => void;
   onOpenCart?: () => void;
   cartItemsCount?: number;
   cartItemCount?: number;
-  activeSection: string;
+  page: CategoryPage;
+  onNavigate: (page: CategoryPage) => void;
+  onContact: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentLang,
   onLanguageChange,
-  onOpenBooking,
   onOpenB2BModal,
   onOpenCart,
   cartItemsCount,
   cartItemCount,
-  activeSection
+  page,
+  onNavigate,
+  onContact
 }) => {
   const displayCartCount = cartItemCount ?? cartItemsCount ?? 0;
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,30 +46,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const navItems = [
-    { id: 'showroom', label: t.nav.showroom },
-    { id: 'shop', label: t.nav.shop, badge: 'НОВО' },
-    { id: 'salons', label: t.nav.salons },
-    { id: 'service-lab', label: t.nav.serviceLab },
-    { id: 'oem-parts', label: t.nav.oemParts },
-    { id: 'b2b-fleet', label: t.nav.b2bFleet },
-    { id: 'contact', label: t.nav.contact }
+    { id: 'home', label: 'Почетна' },
+    { id: 'scooters', label: 'Скутери' },
+    { id: 'motorcycles', label: 'Моторцикли' },
+    { id: 'equipment', label: 'Опрема' },
+    { id: 'contact', label: 'Контакт' }
   ];
 
-  const scrollToSection = (id: string) => {
+  const handleNavClick = (id: string) => {
     setMobileMenuOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+    if (id === 'contact') {
+      onContact();
+      return;
     }
+    onNavigate(id as CategoryPage);
   };
 
   const languages: { code: Language; label: string }[] = [
@@ -96,12 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-slate-300 font-mono text-[10px]">САЛОН: Скопје</span>
-            <span className="text-slate-700">|</span>
-            <a href="tel:070222446" className="hover:text-red-400 transition-colors flex items-center text-white font-bold">
-              <Phone className="w-3.5 h-3.5 text-red-500 mr-1.5" />
-              070 222 446
-            </a>
+            <span className="text-slate-300 font-mono text-[10px]">САЛОН: Скопје · 518 1/13 Керамидница</span>
           </div>
         </div>
       </div>
@@ -143,12 +131,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Desktop Navigation Links */}
             <nav id="desktop-nav-links" className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => {
-                const isActive = activeSection === item.id;
+                const isActive = item.id === 'home' ? page === 'home' : item.id === page;
                 return (
                   <button
                     key={item.id}
                     id={`nav-link-${item.id}`}
-                    onClick={() => scrollToSection(item.id)}
+                    onClick={() => handleNavClick(item.id)}
                     className={`relative px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer flex items-center space-x-1.5 ${
                       isActive
                         ? 'text-[#FF4433] bg-red-500/10 font-bold border border-red-500/20'
@@ -156,11 +144,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                   >
                     <span>{item.label}</span>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-[#E22E1A] text-white rounded-full">
-                        {item.badge}
-                      </span>
-                    )}
+
                   </button>
                 );
               })}
@@ -217,17 +201,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
 
-              {/* Main Phone Hotline */}
-              <a
-                id="btn-nav-call"
-                href="tel:070222446"
-                className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-[#181A20] hover:bg-[#22252C] border border-white/10 text-white text-xs font-bold transition-colors cursor-pointer"
-              >
-                <Phone className="w-3.5 h-3.5 text-red-400" />
-                <span>070 222 446</span>
-              </a>
-
-              {/* Buy / Financing CTA */}
+              {/* Main CTA */}
               <button
                 id="btn-request-b2b-nav"
                 onClick={onOpenB2BModal}
@@ -281,31 +255,23 @@ export const Navbar: React.FC<NavbarProps> = ({
         {mobileMenuOpen && (
           <div id="mobile-nav-dropdown" className="lg:hidden bg-[#0D0E11] border-b border-white/10 px-4 pt-3 pb-6 space-y-3">
             <div className="space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-semibold text-slate-200 hover:bg-white/5 hover:text-[#FF5B4D] transition-colors flex items-center justify-between"
-                >
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="px-2 py-0.5 text-xs font-bold bg-[#E22E1A] text-white rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              ))}
+              {navItems.map((item) => {
+                const isActive = item.id === 'home' ? page === 'home' : item.id === page;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-between ${
+                      isActive ? 'bg-red-500/10 text-[#FF5B4D]' : 'text-slate-200 hover:bg-white/5 hover:text-[#FF5B4D]'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="pt-3 border-t border-white/10 space-y-2">
-              <a
-                href="tel:070222446"
-                className="w-full flex items-center justify-center space-x-2 py-3 rounded-lg bg-[#181A20] border border-white/10 text-white font-bold text-sm"
-              >
-                <Phone className="w-4 h-4 text-red-400" />
-                <span>Јави се: 070 222 446</span>
-              </a>
-
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

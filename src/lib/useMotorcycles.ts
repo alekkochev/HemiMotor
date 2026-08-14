@@ -73,7 +73,7 @@ function mapRowToMotorcycle(row: ProductRow): Motorcycle {
     monthlyInstallmentMkd: row.price ? Math.round(row.price / 36) : 0,
     engine: specs.engine || '—',
     engineType: row.subcategories?.some((s) => s.includes('50cc-2t')) ? '2-тактен' : '4-тактен',
-    cooling: specs.cooling || '—',
+    cooling: (specs.cooling as Motorcycle['cooling']) || 'Воздушно',
     power: specs.power || '—',
     torque: specs.torque || '—',
     topSpeed: specs.topSpeed || '—',

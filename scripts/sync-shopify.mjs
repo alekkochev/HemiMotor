@@ -117,7 +117,7 @@ async function fetchCollectionProducts(collectionHandle) {
 // ---------- Парсирање на спецификации од HTML опис ----------
 function stripHtml(html) {
   return (html || '')
-    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<br\b[^>]*>/gi, '\n')
     .replace(/<\/p>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
@@ -129,31 +129,59 @@ function stripHtml(html) {
 function parseSpecs(bodyHtml) {
   const specs = {}
   if (!bodyHtml) return specs
-  const rowRe = /<tr[^>]*>\s*<td[^>]*>\s*<strong>([^<]+)<\/strong>\s*<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/gi
+
   const keyMap = [
-    { keys: ['тип на мотор', 'тип мотор', 'мотор'], field: 'engine' },
-    { keys: ['работна зафатнина', 'зафатнина'], field: 'displacement' },
-    { keys: ['максимална моќност', 'максимална моћност', 'максимална мокност', 'моќност', 'моћност'], field: 'power' },
-    { keys: ['вртежен момент', 'максимален вртежен момент'], field: 'torque' },
-    { keys: ['максимална брзина', 'макс. брзина', 'брзина'], field: 'topSpeed' },
-    { keys: ['тежина', 'маса'], field: 'weight' },
-    { keys: ['резервоар', 'резервоар за гориво'], field: 'fuelCapacity' },
-    { keys: ['сопирачки'], field: 'brakes' },
-    { keys: ['гуми', 'бандажи', 'тркала'], field: 'tires' },
-    { keys: ['ладење', 'систем за ладење'], field: 'cooling' },
+    { keys: ['engine type', 'engine', 'тип на мотор', 'тип мотор', 'мотор'], field: 'engine' },
+    { keys: ['displacement', 'engine displacement', 'зафатнина', 'работна зафатнина'], field: 'displacement' },
+    { keys: ['max power', 'maximum power', 'power', 'максимална моќност', 'максимална моћност', 'максимална мокност', 'моќност', 'моћност'], field: 'power' },
+    { keys: ['max torque', 'maximum torque', 'torque', 'вртежен момент', 'максимален вртежен момент'], field: 'torque' },
+    { keys: ['max speed', 'maximum speed', 'top speed', 'максимална брзина', 'макс. брзина', 'брзина'], field: 'topSpeed' },
+    { keys: ['weight', 'net weight', 'gross weight', 'тежина', 'маса'], field: 'weight' },
+    { keys: ['fuel tank', 'tank capacity', 'fuel capacity', 'fuel', 'резервоар', 'резервоар за гориво'], field: 'fuelCapacity' },
+    { keys: ['brake', 'brakes', 'сопирачки'], field: 'brakes' },
+    { keys: ['tire', 'tyre', 'tires', 'гуми', 'бандажи', 'тркала'], field: 'tires' },
+    { keys: ['cooling', 'cooling system', 'ладење', 'систем за ладење'], field: 'cooling' },
   ]
-  let m
-  while ((m = rowRe.exec(bodyHtml)) !== null) {
-    const rawKey = stripHtml(m[1]).toLowerCase().replace(/\s+/g, ' ').trim()
-    const value = stripHtml(m[2])
-    if (!value) continue
+
+  const tryMatch = (rawKey, value) => {
+    if (!value) return false
     for (const { keys, field } of keyMap) {
       if (keys.some((k) => rawKey.includes(k)) && !specs[field]) {
         specs[field] = value
-        break
+        return true
       }
     }
+    return false
   }
+
+  // 1) Табели: <td><strong>Клуч</strong></td><td>вредност</td>
+  const rowRe = /<tr[^>]*>\s*<td[^>]*>\s*<strong>([^<]+)<\/strong>\s*<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/gi
+  let m
+  while ((m = rowRe.exec(bodyHtml)) !== null) {
+    const rawKey = stripHtml(m[1]).toLowerCase().replace(/[:\s]+$/g, '').replace(/\s+/g, ' ').trim()
+    tryMatch(rawKey, stripHtml(m[2]))
+  }
+
+  // 2) Fallback: линии „Клуч: вредност“ (формат со <br> во <p>) — секогаш се обидува да пополни
+  {
+    const text = (bodyHtml || '')
+      .replace(/<br\b[^>]*>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+    for (const line of text.split('\n')) {
+      const clean = line.replace(/\s+/g, ' ').trim()
+      if (clean.length < 3 || clean.length > 200) continue
+      const colon = clean.indexOf(':')
+      if (colon <= 1 || colon > 40) continue
+      const key = clean.slice(0, colon).toLowerCase().trim()
+      const value = clean.slice(colon + 1).trim()
+      tryMatch(key, value)
+    }
+  }
+
   return specs
 }
 

@@ -19,13 +19,16 @@ interface ShowroomSectionProps {
   onBookTestRide: (moto: Motorcycle) => void;
   onOpenFinancing: (moto: Motorcycle) => void;
   initialCcFilter?: string;
+  /** Кога е поставено: прикажи само оваа категорија (без табови) — за категориски страници. */
+  fixedCategory?: MotoCategory;
 }
 
 export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   currentLang,
   onBookTestRide,
   onOpenFinancing,
-  initialCcFilter
+  initialCcFilter,
+  fixedCategory
 }) => {
   const t = translations[currentLang];
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -36,7 +39,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   const { motorcycles, usingDemo } = useMotorcycles();
 
   // Filters State
-  const [selectedCategory, setSelectedCategory] = useState<MotoCategory>('all');
+  const [selectedCategory, setSelectedCategory] = useState<MotoCategory>(fixedCategory || 'all');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('all');
   const [selectedCcRange, setSelectedCcRange] = useState<string>(initialCcFilter || 'all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
@@ -283,7 +286,8 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
           </div>
         </div>
 
-        {/* Main Category Tabs */}
+        {/* Main Category Tabs — скриени кога е фиксирана категорија (категориска страница) */}
+        {!fixedCategory && (
         <div className="gsap-showroom-tabs flex overflow-x-auto pb-2 gap-2 scrollbar-none mb-4">
           {mainCategories.map((cat) => {
             const isActive = selectedCategory === cat.id;
@@ -309,6 +313,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
             );
           })}
         </div>
+        )}
 
         {/* Subcategories (if available for the selected category) */}
         {subCategoriesList.length > 0 && (
@@ -498,25 +503,35 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
                       {moto.subtitle}
                     </p>
 
-                    {/* Key Technical Specs Grid */}
+                    {/* Key Technical Specs Grid — само достапните спецификации */}
+                    {[moto.power, moto.cooling, moto.topSpeed, moto.weight].some((v) => v && v !== '—') && (
                     <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/10 text-xs">
-                      <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
-                        <span className="text-[10px] text-slate-400 block">Моќност</span>
-                        <span className="font-bold text-slate-200">{moto.power}</span>
-                      </div>
-                      <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
-                        <span className="text-[10px] text-slate-400 block">Ладење / Мотор</span>
-                        <span className="font-bold text-slate-200">{moto.cooling}</span>
-                      </div>
-                      <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
-                        <span className="text-[10px] text-slate-400 block">Макс. Брзина</span>
-                        <span className="font-bold text-slate-200">{moto.topSpeed}</span>
-                      </div>
-                      <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
-                        <span className="text-[10px] text-slate-400 block">Маса / Резервоар</span>
-                        <span className="font-bold text-slate-200">{moto.weight}</span>
-                      </div>
+                      {moto.power && moto.power !== '—' && (
+                        <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
+                          <span className="text-[10px] text-slate-400 block">Моќност</span>
+                          <span className="font-bold text-slate-200">{moto.power}</span>
+                        </div>
+                      )}
+                      {moto.cooling && moto.cooling !== '—' && (
+                        <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
+                          <span className="text-[10px] text-slate-400 block">Ладење / Мотор</span>
+                          <span className="font-bold text-slate-200">{moto.cooling}</span>
+                        </div>
+                      )}
+                      {moto.topSpeed && moto.topSpeed !== '—' && (
+                        <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
+                          <span className="text-[10px] text-slate-400 block">Макс. Брзина</span>
+                          <span className="font-bold text-slate-200">{moto.topSpeed}</span>
+                        </div>
+                      )}
+                      {moto.weight && moto.weight !== '—' && (
+                        <div className="p-2 rounded-lg bg-[#181A20] border border-white/5">
+                          <span className="text-[10px] text-slate-400 block">Маса / Резервоар</span>
+                          <span className="font-bold text-slate-200">{moto.weight}</span>
+                        </div>
+                      )}
                     </div>
+                    )}
 
                     {/* Available in Salons Tag */}
                     <div className="mt-3 flex items-center text-[11px] text-emerald-400 font-semibold">
