@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Menu, X, ChevronRight, Globe, ShoppingBag, Wrench } from 'lucide-react';
+import { Shield, Menu, X, ChevronRight, ChevronDown, Globe, ShoppingBag, Wrench } from 'lucide-react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { CategoryPage } from './CategoryCards';
@@ -15,6 +15,7 @@ interface NavbarProps {
   onNavigate: (page: CategoryPage) => void;
   onContact: () => void;
   onBookService: () => void;
+  onNavigateScooterSub: (sub: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -27,12 +28,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   page,
   onNavigate,
   onContact,
-  onBookService
+  onBookService,
+  onNavigateScooterSub
 }) => {
   const displayCartCount = cartItemCount ?? cartItemsCount ?? 0;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [scootersOpen, setScootersOpen] = useState(false);
   const t = translations[currentLang];
 
   useEffect(() => {
@@ -53,6 +56,16 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'motorcycles', label: 'Моторцикли' },
     { id: 'equipment', label: 'Опрема' },
     { id: 'contact', label: 'Контакт' }
+  ];
+
+  // Подмени за Скутери (како hamachi.mk)
+  const scooterSubs = [
+    { id: 'scooter-50-2t', label: 'Скутери 50cc — 2Т' },
+    { id: 'scooter-50-4t', label: 'Скутери 50cc — 4Т' },
+    { id: 'scooter-125', label: 'Скутери 125cc' },
+    { id: 'scooter-150', label: 'Скутери 150cc' },
+    { id: 'scooter-200', label: 'Скутери 200cc' },
+    { id: 'scooter-300', label: 'Скутери 300cc' }
   ];
 
   const handleNavClick = (id: string) => {
@@ -134,6 +147,49 @@ export const Navbar: React.FC<NavbarProps> = ({
             <nav id="desktop-nav-links" className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => {
                 const isActive = item.id === 'home' ? page === 'home' : item.id === page;
+                if (item.id === 'scooters') {
+                  return (
+                    <div
+                      key={item.id}
+                      className="relative"
+                      onMouseEnter={() => setScootersOpen(true)}
+                      onMouseLeave={() => setScootersOpen(false)}
+                    >
+                      <button
+                        id={`nav-link-${item.id}`}
+                        onClick={() => handleNavClick(item.id)}
+                        className={`relative px-3 py-2 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer flex items-center space-x-1.5 ${
+                          isActive
+                            ? 'text-[#FF4433] bg-red-500/10 font-bold border border-red-500/20'
+                            : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${scootersOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {scootersOpen && (
+                        <div className="absolute left-0 top-full pt-2 z-50">
+                          <div className="w-60 bg-[#121316] border border-white/15 rounded-xl shadow-2xl py-1">
+                            {scooterSubs.map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => {
+                                  setScootersOpen(false);
+                                  onNavigateScooterSub(s.id);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-300 hover:text-[#FF5B4D] hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                              >
+                                <span>{s.label}</span>
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
                 return (
                   <button
                     key={item.id}
@@ -282,6 +338,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </button>
                 );
               })}
+            </div>
+
+            {/* Скутери по кубикажа (подмени во мобилното мени) */}
+            <div className="pt-3 border-t border-white/10 space-y-1">
+              <span className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Скутери по кубикажа:
+              </span>
+              {scooterSubs.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onNavigateScooterSub(s.id);
+                  }}
+                  className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-200 hover:bg-white/5 hover:text-[#FF5B4D] transition-colors flex items-center justify-between"
+                >
+                  <span>{s.label}</span>
+                  <ChevronRight className="w-4 h-4 text-slate-500" />
+                </button>
+              ))}
             </div>
 
             <div className="pt-3 border-t border-white/10 space-y-2">

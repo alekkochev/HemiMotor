@@ -4,9 +4,12 @@ export type MotoCategory = 'all' | 'scooters' | 'motorcycles' | 'atv-quad' | 'el
 
 export type MotoSubCategory =
   | 'all-sub'
-  | 'scooter-50'
-  | 'scooter-125-200'
-  | 'scooter-maxi-300'
+  | 'scooter-50-2t'
+  | 'scooter-50-4t'
+  | 'scooter-125'
+  | 'scooter-150'
+  | 'scooter-200'
+  | 'scooter-300'
   | 'cross-enduro'
   | 'street-naked'
   | 'cruiser-chopper'

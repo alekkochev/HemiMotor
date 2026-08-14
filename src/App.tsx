@@ -30,6 +30,7 @@ export default function App() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isB2BModalOpen, setIsB2BModalOpen] = useState(false);
   const [bookingMode, setBookingMode] = useState<'service' | 'test-ride' | 'financing'>('service');
+  const [scooterSubFilter, setScooterSubFilter] = useState<string>('all');
 
   // Pre-filled modal contexts
   const [selectedMotoForBooking, setSelectedMotoForBooking] = useState<Motorcycle | null>(null);
@@ -82,7 +83,15 @@ export default function App() {
 
   // Навигација меѓу страници
   const navigateTo = (target: CategoryPage) => {
+    if (target === 'scooters') setScooterSubFilter('all');
     setPage(target);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  // Подмена од навбарот: Скутери → конкретна кубикажа
+  const handleNavigateScooterSub = (sub: string) => {
+    setScooterSubFilter(sub);
+    setPage('scooters');
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
@@ -162,6 +171,7 @@ export default function App() {
         onNavigate={navigateTo}
         onContact={handleContactNav}
         onBookService={handleOpenBooking}
+        onNavigateScooterSub={handleNavigateScooterSub}
       />
 
       {/* Main Experience Flow */}
@@ -256,6 +266,7 @@ export default function App() {
                 setIsBookingOpen(true);
               }}
               fixedCategory={page === 'scooters' ? 'scooters' : 'motorcycles'}
+              initialSubCategory={page === 'scooters' ? scooterSubFilter : undefined}
             />
           </>
         )}

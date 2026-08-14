@@ -52,7 +52,20 @@ function mapRowToMotorcycle(row: ProductRow): Motorcycle {
     else if (cc >= 440) subCategory = 'adventure-rally'
     else subCategory = 'street-naked'
   } else {
-    subCategory = (cc <= 50 ? 'scooter-50' : cc <= 200 ? 'scooter-125-200' : 'scooter-maxi-300') as Motorcycle['subCategory']
+    // Групирање како hamachi.mk: 50cc 2Т / 50cc 4Т / 125 / 150 / 200 / 300cc
+    const is2t = (row.subcategories || []).some((s) => s.includes('50cc-2t'))
+    subCategory =
+      cc <= 50
+        ? is2t
+          ? 'scooter-50-2t'
+          : 'scooter-50-4t'
+        : cc <= 125
+        ? 'scooter-125'
+        : cc <= 150
+        ? 'scooter-150'
+        : cc <= 200
+        ? 'scooter-200'
+        : 'scooter-300'
   }
 
   return {

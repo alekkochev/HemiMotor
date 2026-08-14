@@ -21,6 +21,8 @@ interface ShowroomSectionProps {
   onBookTestRide: (moto: Motorcycle) => void;
   onOpenFinancing: (moto: Motorcycle) => void;
   initialCcFilter?: string;
+  /** Подкатегорија со која се отвора страницата (од навбарот). */
+  initialSubCategory?: string;
   /** Кога е поставено: прикажи само оваа категорија (без табови) — за категориски страници. */
   fixedCategory?: MotoCategory;
 }
@@ -30,6 +32,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   onBookTestRide,
   onOpenFinancing,
   initialCcFilter,
+  initialSubCategory,
   fixedCategory
 }) => {
   const t = translations[currentLang];
@@ -42,7 +45,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<MotoCategory>(fixedCategory || 'all');
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('all');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>(initialSubCategory || 'all');
   const [selectedCcRange, setSelectedCcRange] = useState<string>(initialCcFilter || 'all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -81,9 +84,12 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
     if (selectedCategory === 'scooters') {
       return [
         { id: 'all', label: 'Сите Скутери' },
-        { id: 'scooter-50', label: '50cc Градски Мопеди (од 67.035 ден.)' },
-        { id: 'scooter-125-200', label: '125cc - 200cc Градски' },
-        { id: 'scooter-maxi-300', label: '278cc - 368cc Макси & Crossover' }
+        { id: 'scooter-50-2t', label: 'Скутери 50cc — 2Т (Двотактен)' },
+        { id: 'scooter-50-4t', label: 'Скутери 50cc — 4Т (Четиритактен)' },
+        { id: 'scooter-125', label: 'Скутери 125cc' },
+        { id: 'scooter-150', label: 'Скутери 150cc' },
+        { id: 'scooter-200', label: 'Скутери 200cc' },
+        { id: 'scooter-300', label: 'Скутери 300cc' }
       ];
     }
     if (selectedCategory === 'motorcycles') {
@@ -185,6 +191,19 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
   useEffect(() => {
     if (selectedMotoForDetails) setDetailImgIdx(0);
   }, [selectedMotoForDetails]);
+
+  // Кога се менува фиксната категорија (Скутери ⇄ Моторцикли) — ресетирај ги филтрите
+  useEffect(() => {
+    if (fixedCategory) {
+      setSelectedCategory(fixedCategory);
+      setSelectedSubCategory('all');
+    }
+  }, [fixedCategory]);
+
+  // Кога од навбарот ќе се избере подкатегорија — примени филтер (по горниот ресет)
+  useEffect(() => {
+    if (initialSubCategory) setSelectedSubCategory(initialSubCategory);
+  }, [initialSubCategory]);
 
   // Галерија: листа на слики за модалот и lightbox-от
   const galleryImages = selectedMotoForDetails
@@ -426,7 +445,8 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
             </div>
           </div>
 
-          {/* Bottom Row: Cubic Capacity Pills (Кубикажа од најмала до најголема) */}
+          {/* Bottom Row: Cubic Capacity Pills — скриени на страницата Скутери (подкатегориите ги заменуваат) */}
+          {fixedCategory !== 'scooters' && (
           <div className="flex items-center flex-wrap gap-1.5 pt-2 border-t border-white/10">
             <span className="text-xs font-bold text-slate-400 mr-2 flex items-center">
               <Gauge className="w-3.5 h-3.5 text-[#FF5B4D] mr-1" />
@@ -449,6 +469,7 @@ export const ShowroomSection: React.FC<ShowroomSectionProps> = ({
               );
             })}
           </div>
+          )}
 
         </div>
 
